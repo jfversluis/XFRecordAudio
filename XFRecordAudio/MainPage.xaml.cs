@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Plugin.AudioRecorder;
+using Xamarin.Essentials;
 
 namespace XFRecordAudio
 {
@@ -20,17 +21,24 @@ namespace XFRecordAudio
             InitializeComponent();
         }
 
-        void Button_Clicked(System.Object sender, System.EventArgs e)
+        async void Button_Clicked(System.Object sender, System.EventArgs e)
         {
+            // This was not in the video, we need to ask permission
+            // for the microphone to make it work for Android, see https://youtu.be/uBdX54sTCP0
+            var status = await Permissions.RequestAsync<Permissions.Microphone>();
+
+            if (status != PermissionStatus.Granted)
+                return;
+
             if (audioRecorderService.IsRecording)
             {
-                audioRecorderService.StopRecording();
+                await audioRecorderService.StopRecording();
 
                 audioPlayer.Play(audioRecorderService.GetAudioFilePath());
             }
             else
             {
-                audioRecorderService.StartRecording();
+                await audioRecorderService.StartRecording();
             }
         }
     }
